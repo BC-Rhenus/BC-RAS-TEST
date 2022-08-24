@@ -6,10 +6,6 @@ report 50010 "Import ASN"
 //  RHE-TNA 25-01-2022 BDS-6037
 //  - Modified several TextConst into Label
 
-// RHE-AMKE 24-08-2022 BDS-6558
-// Added ManufacturingDate-ManufDstamp 
-
-
 {
     UsageCategory = None;
     UseRequestPage = true;
@@ -115,7 +111,6 @@ report 50010 "Import ASN"
         SerialNo: Code[50];
         Supplier: Code[20];
         ShipToWhse: Code[10];
-
         //RHE-TNA 21-01-2022 BDS-6037 BEGIN
         //ErrorText001: TextConst
         //    ENU = 'Line number %1 is found more than once.';
@@ -140,7 +135,7 @@ report 50010 "Import ASN"
                             //Insert first order line
                             //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                             //CreatePurchLine(LineNo, ItemNo, Quantity, UnitCost);
-                            CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp);
+                            CreatePurchLine(0, ItemNo, Quantity, UnitCost);
                             //RHE-TNA 10-06-2020 BDS-4229 END
                         end;
                     end;
@@ -182,8 +177,6 @@ report 50010 "Import ASN"
                             LotNo := '';
                             SerialNo := '';
                             ExpirationDate := 0D;
-                            ManufDstamp := 0D;
-
                             //RHE-TNA 10-06-2020 BDS-4229 END
                         end;
                     end;
@@ -232,7 +225,7 @@ report 50010 "Import ASN"
                             PurchLine.SetRange("No.", ItemNo);
                             PurchLine.SetRange("Direct Unit Cost", UnitCost);
                             if not PurchLine.FindFirst() then
-                                CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp)
+                                CreatePurchLine(0, ItemNo, Quantity, UnitCost)
                             else
                                 PurchLine.Validate(Quantity, PurchLine.Quantity + Quantity);
                         end;
@@ -246,11 +239,6 @@ report 50010 "Import ASN"
                     if ExcelBuffer."Column No." = 12 then begin
                         LocationCode := ExcelBuffer."Cell Value as Text";
                     end;
-                    //Manufacture Date
-                    if ExcelBuffer."Column No." = 13 then begin
-                        Evaluate(ManufDstamp, ExcelBuffer."Cell Value as Text");
-                    end;
-
                 end;
             until ExcelBuffer.Next() = 0;
             //If only 1 line is present in file the order is not yet created
@@ -261,7 +249,7 @@ report 50010 "Import ASN"
                 //Insert first order line
                 //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                 //CreatePurchLine(LineNo, ItemNo, Quantity, UnitCost);
-                CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp);
+                CreatePurchLine(0, ItemNo, Quantity, UnitCost);
                 //RHE-TNA 10-06-2020 BDS-4229 END
                 if (LotNo <> '') or (SerialNo <> '') then
                     //RHE-TNA 10-06-2020 BDS-4229 BEGIN
@@ -313,7 +301,7 @@ report 50010 "Import ASN"
         PurchHdr.Modify(true);
     end;
 
-    procedure CreatePurchLine(LineNo: Integer; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal; ManufDstamp: Date)
+    procedure CreatePurchLine(LineNo: Integer; ItemNo: Code[20]; Quantity: Decimal; UnitCost: Decimal)
     var
         PurchLine2: Record "Purchase Line";
         //RHE-TNA 21-01-2022 BDS-6037 BEGIN
@@ -330,7 +318,6 @@ report 50010 "Import ASN"
                 PurchLine."Document Type" := PurchHdr."Document Type";
                 PurchLine."Document No." := PurchHdr."No.";
                 PurchLine."Line No." := LineNo;
-                PurchLine."Manufacture Date" := ManufDstamp;
                 PurchLine.Insert(true);
                 //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                 //LineCount := LineCount + 1;
@@ -342,8 +329,6 @@ report 50010 "Import ASN"
                 PurchLine.Validate("Location Code", PurchHdr."Location Code");
                 PurchLine.Validate(Quantity, Quantity);
                 PurchLine.Validate("Direct Unit Cost", UnitCost);
-                if ManufDstamp <> 0D then
-                    PurchLine.Validate("Manufacture Date", ManufDstamp);
                 PurchLine.Modify(true);
             end else
                 Error(ErrorText001, LineNo);
@@ -367,7 +352,6 @@ report 50010 "Import ASN"
                     PurchLine."Line No." := PurchLine2."Line No." + 10000
                 else
                     PurchLine."Line No." := 10000;
-                PurchLine."Manufacture Date" := ManufDstamp;
                 PurchLine.Insert(true);
 
                 PurchLine.Validate("Buy-from Vendor No.", PurchHdr."Buy-from Vendor No.");
@@ -377,8 +361,6 @@ report 50010 "Import ASN"
                     PurchLine.Validate("Location Code", PurchHdr."Location Code");
                     PurchLine.Validate(Quantity, Quantity);
                     PurchLine.Validate("Direct Unit Cost", UnitCost);
-                    if ManufDstamp <> 0D then
-                        PurchLine.Validate("Manufacture Date", ManufDstamp);
                 end;
             end;
             PurchLine.Modify(true);
@@ -452,7 +434,6 @@ report 50010 "Import ASN"
         InventorySetup: Record "Inventory Setup";
         NoOfExcelHdrLine: Integer;
         ExpirationDate: Date;
-        ManufDstamp: Date;
         FirstOrderLine: Boolean;
         LineCount: Integer;
         VendorInvoiceNo: code[35];
