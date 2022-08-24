@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        
+        {
+            "type": "al",
+            "request": "launch",
+            "name": "Business Central Test",
+            "server": "http://localhost:7049",
+            "port": 7049,
+            "serverInstance": "TEST",
+            "authentication": "Windows",
+            "startupObjectId": 9006,
+            "startupObjectType": "Page",
+            "breakOnError": true,
+            "launchBrowser": true,
+            "schemaUpdateMode": "Synchronize"
+        }
+    ]
+}
