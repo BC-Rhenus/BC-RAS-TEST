@@ -7,7 +7,7 @@ report 50010 "Import ASN"
 //  - Modified several TextConst into Label
 
 // RHE-AMKE 24-08-2022 BDS-6558
-// Added ManufacturingDate-ManufDstamp
+// Added ManufacturingDate-ManufDstamp 
 
 
 {
