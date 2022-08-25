@@ -14,6 +14,9 @@ xmlport 50001 "Export WMS Receipt"
 //  - Modified trigger OnPreXmlPort()
 //  - Modified textelement(expiry_dstamp)
 
+//  RHE-AMKE 25-08-2022 BDS-6558
+// - Modified textelement(manuf_dstamp)
+
 {
     Direction = Export;
     Format = Xml;
@@ -515,7 +518,28 @@ xmlport 50001 "Export WMS Receipt"
                             }
                             textelement(manuf_dstamp)
                             {
+                                // RHE-AMKE 25-08-2022 BDS-6558 Begin
+                                trigger OnBeforePassVariable()
+                                var
+                                    Day: Text[2];
+                                    Month: Text[2];
+                                    Year: Text[4];
+                                begin
+                                    manuf_dstamp := '';
+                                    if Purch_Line."Manufacture Date" <> 0D then begin
+                                        Day := Format(Date2DMY(Purch_Line."Manufacture Date", 1));
+                                        if StrLen(Day) < 2 then
+                                            Day := '0' + Day;
+                                        Month := Format(Date2DMY(Purch_Line."Manufacture Date", 2));
+                                        if StrLen(Month) < 2 then
+                                            Month := '0' + Month;
+                                        Year := Format(Date2DMY(Purch_Line."Manufacture Date", 3));
 
+                                        manuf_dstamp := Year + Month + Day + '000000';
+                                    end;
+
+                                end;
+                                // RHE-AMKE 25-08-2022 BDS-6558 End
                             }
                             textelement(notes_XMLConvert)
                             {
@@ -952,6 +976,7 @@ xmlport 50001 "Export WMS Receipt"
         Sales_Hdr: Record "Sales Header";
         Purch_Hdr: Record "Purchase Header";
         Transfer_Hdr: Record "Transfer Header";
+        Purch_Line: Record "Purchase Line";
         Source_Doc: Option S_Order,P_Order,T_Order;
         DecimalSignIsComma: Boolean;
         LineId: Integer;
