@@ -115,6 +115,8 @@ report 50010 "Import ASN"
         SerialNo: Code[50];
         Supplier: Code[20];
         ShipToWhse: Code[10];
+        ManufDstamp: Date;
+        LocalMandDstamp: Code[20];
 
         //RHE-TNA 21-01-2022 BDS-6037 BEGIN
         //ErrorText001: TextConst
@@ -129,6 +131,7 @@ report 50010 "Import ASN"
                         FirstOrderLine := true
                     else
                         FirstOrderLine := false;
+            
                     //Purchase Order No.
                     if ExcelBuffer."Column No." = 1 then begin
                         //Only create the header after completely processing processing the first line to know all data in the file.
@@ -141,6 +144,7 @@ report 50010 "Import ASN"
                             //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                             //CreatePurchLine(LineNo, ItemNo, Quantity, UnitCost);
                             CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp);
+                                    ManufDstamp := 0D;
                             //RHE-TNA 10-06-2020 BDS-4229 END
                         end;
                     end;
@@ -182,7 +186,7 @@ report 50010 "Import ASN"
                             LotNo := '';
                             SerialNo := '';
                             ExpirationDate := 0D;
-                            ManufDstamp := 0D;
+                            // ManufDstamp := 0D;
 
                             //RHE-TNA 10-06-2020 BDS-4229 END
                         end;
@@ -218,8 +222,17 @@ report 50010 "Import ASN"
                     if ExcelBuffer."Column No." = 7 then begin
                         SerialNo := ExcelBuffer."Cell Value as Text";
                     end;
-                    //Unit Cost
+                    //Manufacture Date
                     if ExcelBuffer."Column No." = 8 then begin
+                        LocalMandDstamp := ExcelBuffer."Cell Value as Text";
+                        Evaluate(ManufDstamp, LocalMandDstamp);
+                        if ManufDstamp <> 0D then
+                            PurchLine.Validate("Manufacture Date", ManufDstamp)
+                        else
+                            ManufDstamp := 0D;
+                    end;
+                    //Unit Cost
+                    if ExcelBuffer."Column No." = 9 then begin
                         Evaluate(UnitCost, ExcelBuffer."Cell Value as Text");
                         //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                         //if not FirstOrderLine then
@@ -231,9 +244,10 @@ report 50010 "Import ASN"
                             PurchLine.SetRange(Type, PurchLine.Type::Item);
                             PurchLine.SetRange("No.", ItemNo);
                             PurchLine.SetRange("Direct Unit Cost", UnitCost);
-                            if not PurchLine.FindFirst() then
-                                CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp)
-                            else
+                            if not PurchLine.FindFirst() then begin
+                                CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp);
+                                ManufDstamp := 0D;
+                            end else
                                 PurchLine.Validate(Quantity, PurchLine.Quantity + Quantity);
                         end;
                         //RHE-TNA 10-06-2020 BDS-4229 END
@@ -246,10 +260,7 @@ report 50010 "Import ASN"
                     if ExcelBuffer."Column No." = 12 then begin
                         LocationCode := ExcelBuffer."Cell Value as Text";
                     end;
-                    //Manufacture Date
-                    if ExcelBuffer."Column No." = 13 then begin
-                        Evaluate(ManufDstamp, ExcelBuffer."Cell Value as Text");
-                    end;
+
 
                 end;
             until ExcelBuffer.Next() = 0;
@@ -262,6 +273,7 @@ report 50010 "Import ASN"
                 //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                 //CreatePurchLine(LineNo, ItemNo, Quantity, UnitCost);
                 CreatePurchLine(0, ItemNo, Quantity, UnitCost, ManufDstamp);
+                ManufDstamp := 0D;
                 //RHE-TNA 10-06-2020 BDS-4229 END
                 if (LotNo <> '') or (SerialNo <> '') then
                     //RHE-TNA 10-06-2020 BDS-4229 BEGIN
@@ -330,7 +342,7 @@ report 50010 "Import ASN"
                 PurchLine."Document Type" := PurchHdr."Document Type";
                 PurchLine."Document No." := PurchHdr."No.";
                 PurchLine."Line No." := LineNo;
-                PurchLine."Manufacture Date" := ManufDstamp;
+                // PurchLine."Manufacture Date" := ManufDstamp;
                 PurchLine.Insert(true);
                 //RHE-TNA 10-06-2020 BDS-4229 BEGIN
                 //LineCount := LineCount + 1;
@@ -354,6 +366,7 @@ report 50010 "Import ASN"
             PurchLine.SetRange(Type, PurchLine.Type::Item);
             PurchLine.SetRange("No.", ItemNo);
             PurchLine.SetRange("Direct Unit Cost", UnitCost);
+
             if (PurchLine.FindFirst()) and (ItemNo <> '') then
                 PurchLine.Validate(Quantity, PurchLine.Quantity + Quantity)
             else begin
@@ -367,7 +380,6 @@ report 50010 "Import ASN"
                     PurchLine."Line No." := PurchLine2."Line No." + 10000
                 else
                     PurchLine."Line No." := 10000;
-                PurchLine."Manufacture Date" := ManufDstamp;
                 PurchLine.Insert(true);
 
                 PurchLine.Validate("Buy-from Vendor No.", PurchHdr."Buy-from Vendor No.");
@@ -380,8 +392,10 @@ report 50010 "Import ASN"
                     if ManufDstamp <> 0D then
                         PurchLine.Validate("Manufacture Date", ManufDstamp);
                 end;
+
             end;
             PurchLine.Modify(true);
+
         end;
         //RHE-TNA 10-06-2020 BDS-4229 END
     end;
@@ -452,7 +466,6 @@ report 50010 "Import ASN"
         InventorySetup: Record "Inventory Setup";
         NoOfExcelHdrLine: Integer;
         ExpirationDate: Date;
-        ManufDstamp: Date;
         FirstOrderLine: Boolean;
         LineCount: Integer;
         VendorInvoiceNo: code[35];
