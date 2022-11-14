@@ -4176,7 +4176,7 @@ Cstr(Fields!ShippingAgentCodeLbl.Value) + Chr(177) +
 Cstr(Fields!ExtDocNo_SalesHeader.Value) + Chr(177) +
 Cstr(Fields!ExtDocNoLbl.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoIBANLbl.Value) + Chr(177) +
-Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177) +
+Cstr(Fields!CompanyInfoIBAN.Value) + Chr(177)) +
 Cstr(Fields!CompanyInfoSWIFTLbl.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoSWIFT.Value) + Chr(177) +
 Cstr(Fields!CompanyInfoFax.Value) + Chr(177) +
@@ -8875,7 +8875,7 @@ Cstr(Fields!CompanyInfoFaxLbl.Value)
                               </Filters>
                               <Top>2.7205cm</Top>
                               <Height>6.34994cm</Height>
-                              <Width>7.28985in</Width>
+                              <Width>7.28984in</Width>
                               <ZIndex>5</ZIndex>
                               <Style>
                                 <FontFamily>Segoe UI</FontFamily>
@@ -12558,7 +12558,7 @@ Cstr(Fields!CompanyInfoFaxLbl.Value)
               <Top>3.3573cm</Top>
               <Left>13.99633cm</Left>
               <Height>11pt</Height>
-              <Width>1.79917cm</Width>
+              <Width>1.40229cm</Width>
               <ZIndex>18</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>
@@ -12618,9 +12618,9 @@ Cstr(Fields!CompanyInfoFaxLbl.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.3573cm</Top>
-              <Left>15.7955cm</Left>
+              <Left>15.4339cm</Left>
               <Height>11pt</Height>
-              <Width>2.76841cm</Width>
+              <Width>3.13001cm</Width>
               <ZIndex>20</ZIndex>
               <Style>
                 <FontFamily>Segoe UI</FontFamily>

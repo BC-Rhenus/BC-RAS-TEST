@@ -526,7 +526,10 @@ xmlport 50001 "Export WMS Receipt"
                                     Year: Text[4];
                                 begin
                                     manuf_dstamp := '';
-                                    if Purch_Line."Manufacture Date" <> 0D then begin
+                                    Purch_Line.SetRange(Purch_Line."Document No.", dataline."Source No.");
+                                    Purch_Line.SetRange(Purch_Line."Line No.", dataline."Source Line No.");
+                                    Purch_Line.SetRange(Purch_Line."No.", dataline."Item No.");
+                                    if (Purch_Line.FindFirst()) and (Purch_Line."Manufacture Date" <> 0D) then begin
                                         Day := Format(Date2DMY(Purch_Line."Manufacture Date", 1));
                                         if StrLen(Day) < 2 then
                                             Day := '0' + Day;
